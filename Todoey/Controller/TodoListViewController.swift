@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import CoreData
 import RealmSwift
 
 class TodoListViewController: UITableViewController {
@@ -112,8 +111,7 @@ class TodoListViewController: UITableViewController {
     }
     
     // MARK - Model Manipulation Methods
-    
-    
+
     func loadItems(){
 
         items = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
@@ -122,7 +120,6 @@ class TodoListViewController: UITableViewController {
     
 
 }
-
 
 
 // MARK: Search bar methods
@@ -147,4 +144,6 @@ extension TodoListViewController: UISearchBarDelegate {
     }
 
 }
+
+
 
