@@ -8,8 +8,9 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
-class TodoListViewController: UITableViewController {
+class TodoListViewController: SwipeCellTableViewController   {
 
     let realm = try! Realm()
     var items : Results<Item>?
@@ -23,26 +24,52 @@ class TodoListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        tableView.rowHeight = 60
+        tableView.separatorStyle = .none
         loadItems()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        navigationController?.navigationBar.barTintColor = UIColor(hexString: (selectedCategory?.color)!)
+        
+    }
+    
     // MARK - Tableview Data Source
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
         if let item = items?[indexPath.row]{
             cell.textLabel?.text = item.title
+
             
             // Ternary Operator
             // Value = Condition ? If true : If False
             cell.accessoryType = item.done ? .checkmark : .none
+            if let darkenPercentage : CGFloat = CGFloat(indexPath.row) / CGFloat((items?.count)!) {
+                cell.backgroundColor = UIColor(hexString: (selectedCategory?.color)!)?.darken(byPercentage: darkenPercentage)
+                cell.textLabel?.textColor = ContrastColorOf(cell.backgroundColor!, returnFlat: true)
+            }
         }else {
             cell.textLabel?.text = "No items yet"
         }
 
         return cell
+    }
+    
+    override func saveDataToDatabase(row: Int) {
+        do{
+            if let item = self.items?[row]{
+                try self.realm.write{
+                    self.realm.delete(item)
+                }
+            }else{
+                print("Error in deleting Item")
+            }
+        }catch{
+            print("Error in deleting item,\(error)")
+        }
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
